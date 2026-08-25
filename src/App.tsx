@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { ArrowRight, Check, ChevronDown, CircleHelp, Copy, Globe2, Heart, Info, KeyRound, ShieldCheck, Sparkles, Swords, Trophy, UserRound, X, Zap } from 'lucide-react';
 
 type Language = 'en' | 'es' | 'pt' | 'ru';
@@ -37,7 +37,7 @@ const copy = {
     subtitle: 'El destino definitivo para juegos exclusivos de Roblox. Elige tu juego, entra y domina.',
     featured: 'Juegos Destacados', available: '4 juegos disponibles', action: 'Acción', social: 'Social', combat: 'Combate', exclusive: 'Exclusivo', play: 'Jugar Ahora',
     entry: 'Requisitos de Entrada', account: 'Cuentas menores de 80 días', security: 'Nuestro juego utiliza bots de seguridad avanzados para proteger contra reportes y garantizar una experiencia segura.', note: 'no pueden unirse para evitar abusos y mantener nuestras experiencias en línea.',
-    generate: 'Genera tu', tokenNote: 'a continuación para verificar tu sesión y entrar al juego.', generateAccess: 'Generar Token de Acceso', access: 'Acceder al Juego', copied: 'Token copiado', generated: 'Token de acceso generado', warning: 'Genera un token primero para acceder al juego.', choose: 'Elige tu idioma', chooseNote: 'Selecciona un idioma para continuar.', language: 'Idioma',
+    generate: 'Genera tu', tokenNote: 'a continuación para verificar tu sesión y entrar al juego.', generateAccess: 'Generar Token de Acceso', access: 'Acceder al Juego', copied: 'Token copiado', generated: 'Token de acceso generado', warning: 'Genera un token primero para acceder al juego.', choose: 'Elige tu idioma', chooseNote: 'Selecciona un idioma para continuar.', language: 'Idioma', loginTitle: 'Verify your Roblox account', loginNote: 'Enter your public Roblox username. We never ask for your password.', usernamePlaceholder: 'Roblox username', verify: 'Verify account', verifying: 'Checking account…', accountNotFound: 'Account not found. Try another username.', accountTooYoung: (days: number) => `${days} days remaining to reach 80 days.`, accountVerified: 'Account verified.', verifyError: 'Could not verify the account. Try again.', loginRequired: 'Verify your account before opening a game.',
   },
   pt: {
     welcome: 'Bem-vindo ao Condo',
@@ -95,7 +95,7 @@ function App() {
   }, []);
 
 
-  async function verifyRobloxAccount(event: React.FormEvent<HTMLFormElement>) {
+  async function verifyRobloxAccount(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmedUsername = username.trim();
     if (!trimmedUsername || isVerifying) return;
