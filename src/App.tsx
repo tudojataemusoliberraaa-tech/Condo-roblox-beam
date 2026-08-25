@@ -72,10 +72,10 @@ function App() {
   const t = copy[language];
 
   const games = useMemo<Game[]>(() => [
-    { id: 'fun-combat', name: 'Fun Combat', description: 'Jump into intense battles with friends. Fast-paced action with unique mechanics and epic arenas that keep you on the edge of your seat.', tag: t.action, banner: '/assets/hero-banner.png', icon: Zap, url: 'https://roblox.com.ug/games/487316/Sword-Fight-on-the-Heights-Original' },
-    { id: 'sex-game', name: 'Sex Game', description: 'Explore a creative interactive world filled with challenges, surprises, and social gameplay. Connect with players from around the globe.', tag: t.social, banner: '/assets/hero-banner.png', icon: Heart, url: 'https://roblox.com.ug/games/135450973305019/Remake-Cons-Experience' },
-    { id: 'sword-game', name: 'Sword Game', description: 'Master the art of blade combat. Duel opponents, unlock legendary weapons, and rise through the ranks to become the ultimate swordsman.', tag: t.combat, banner: '/assets/alt-banner.png', icon: Swords, url: 'https://roblox.com.ug/games/6644820483/V4-2P-78527' },
-    { id: 'sword-game-duplicate', name: 'Sword Game', description: 'Master the art of blade combat. Duel opponents, unlock legendary weapons, and rise through the ranks to become the ultimate swordsman.', tag: t.combat, banner: '/assets/alt-banner.png', icon: Swords, url: 'https://roblox.com.ug/games/6644820483/V4-2P-78527' },
+    { id: 'fun-combat', name: 'Fun Combat', description: 'Jump into intense battles with friends. Fast-paced action with unique mechanics and epic arenas that keep you on the edge of your seat.', tag: t.action, banner: '/assets/hero-banner.png', icon: Zap, url: 'https://www.roblox.com/games/120550559221143/Fur-Infection-OutBreak' },
+    { id: 'sex-game', name: 'Sex Game', description: 'Explore a creative interactive world filled with challenges, surprises, and social gameplay. Connect with players from around the globe.', tag: t.social, banner: '/assets/hero-banner.png', icon: Heart, url: 'https://www.roblox.com/games/134922313437159/Titles-Another-Infection-Game' },
+    { id: 'sword-game', name: 'Sword Game', description: 'Master the art of blade combat. Duel opponents, unlock legendary weapons, and rise through the ranks to become the ultimate swordsman.', tag: t.combat, banner: '/assets/alt-banner.png', icon: Swords, url: 'https://www.roblox.com/games/14153443454/Meet-a-neko' },
+    { id: 'sword-game-duplicate', name: 'Sword Game', description: 'Master the art of blade combat. Duel opponents, unlock legendary weapons, and rise through the ranks to become the ultimate swordsman.', tag: t.combat, banner: '/assets/alt-banner.png', icon: Swords, url: 'https://www.roblox.com/games/76838459031868/just-an-innocent-game' },
   ], [t]);
 
   useEffect(() => {
