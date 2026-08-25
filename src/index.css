@@ -197,3 +197,9 @@ button:disabled { cursor: not-allowed; }
   .modal-content { padding-left:18px; padding-right:18px; }
   .language-card { padding:24px 18px; }
 }
+.login-modal { width: min(100%, 430px); }
+.login-label { display: block; margin: 0 0 7px; color: #9abcf0; font-size: 12px; font-weight: 700; }
+.login-input { width: 100%; box-sizing: border-box; min-height: 45px; margin-bottom: 10px; padding: 0 13px; border: 1px solid rgba(96,165,250,.24); border-radius: 11px; outline: none; color: #f6f9ff; background: rgba(3,10,26,.72); font: inherit; }
+.login-input:focus { border-color: rgba(96,165,250,.72); box-shadow: 0 0 0 3px rgba(59,130,246,.13); }
+.login-error { margin: 0 0 12px; padding: 10px 11px; border: 1px solid rgba(248,113,113,.28); border-radius: 10px; color: #fca5a5; background: rgba(127,29,29,.18); font-size: 12px; line-height: 1.45; }
+.primary-button:disabled { cursor: not-allowed; opacity: .55; transform: none; }
