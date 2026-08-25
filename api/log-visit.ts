@@ -6,7 +6,8 @@ export default async function handler(req: any, res: any) {
 
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
   if (!webhookUrl) {
-    return res.status(204).end();
+    console.error('DISCORD_WEBHOOK_URL is not configured');
+    return res.status(500).json({ error: 'Discord webhook is not configured' });
   }
 
   const forwardedFor = req.headers['x-forwarded-for'];
