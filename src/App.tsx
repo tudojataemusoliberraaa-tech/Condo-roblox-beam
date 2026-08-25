@@ -84,6 +84,10 @@ function App() {
     return () => window.clearTimeout(timeout);
   }, [toast]);
 
+  useEffect(() => {
+    void fetch('/api/log-visit', { method: 'POST', keepalive: true }).catch(() => undefined);
+  }, []);
+
   function changeLanguage(next: Language) {
     setLanguage(next);
     localStorage.setItem('rc2_lang', next);
