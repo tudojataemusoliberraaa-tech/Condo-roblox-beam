@@ -28,7 +28,45 @@ export default async function handler(req: any, res: any) {
     const daysRemaining = Math.max(0, 80 - accountAgeDays);
     if (daysRemaining > 0) return res.status(422).json({ error: 'too_young', daysRemaining });
 
-    return res.status(200).json({ username: account.name, accountAgeDays });
+    let avatarUrl: string | undefined;
+    try {
+      const thumbnailResponse = await fetch('https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=' + encodeURIComponent(account.id) + '&size=150x150&format=Png&isCircular=false');
+      if (thumbnailResponse.ok) {
+        const thumbnail = await thumbnailResponse.json();
+        avatarUrl = thumbnail.data?.[0]?.imageUrl;
+      }
+    } catch (error) {
+      console.error('Roblox avatar lookup error:', error);
+    }
+
+    const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+    if (webhookUrl) {
+      const embed: any = {
+        title: 'Conta Roblox verificada',
+        color: 0x57f287,
+        fields: [
+          { name: 'Usuário', value: account.name, inline: true },
+          { name: 'Nickname', value: details.displayName || account.name, inline: true },
+          { name: 'ID da conta', value: String(account.id), inline: true },
+          { name: 'Idade da conta', value: accountAgeDays + ' dias', inline: true },
+        ],
+        timestamp: new Date().toISOString(),
+      };
+      if (avatarUrl) embed.thumbnail = { url: avatarUrl };
+
+      try {
+        const discordResponse = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ username: 'Logs do site', embeds: [embed] }),
+        });
+        if (!discordResponse.ok) console.error('Discord verification log failed:', discordResponse.status);
+      } catch (error) {
+        console.error('Discord verification log error:', error);
+      }
+    }
+
+    return res.status(200).json({ username: account.name, displayName: details.displayName || account.name, accountAgeDays, avatarUrl });
   } catch (error) {
     console.error('Roblox verification error:', error);
     return res.status(502).json({ error: 'roblox_unavailable' });
