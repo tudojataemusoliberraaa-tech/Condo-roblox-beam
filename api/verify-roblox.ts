@@ -1,3 +1,23 @@
+
+function getHeader(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function getDevice(userAgent: string) {
+  if (/iPhone|iPad|iPod/i.test(userAgent)) return 'iPhone/iPad (iOS)';
+  if (/Android/i.test(userAgent)) return 'Android';
+  if (/Macintosh|Mac OS X/i.test(userAgent)) return 'MacBook/Mac';
+  if (/Windows/i.test(userAgent)) return 'Windows PC';
+  if (/Linux/i.test(userAgent)) return 'Linux PC';
+  return 'Dispositivo desconhecido';
+}
+
+function getCity(value: string | string[] | undefined) {
+  const city = getHeader(value);
+  if (!city) return 'Localização indisponível';
+  try { return decodeURIComponent(city); } catch { return city; }
+}
+
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -40,6 +60,13 @@ export default async function handler(req: any, res: any) {
     }
 
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+    const forwardedFor = req.headers['x-forwarded-for'];
+    const rawIp = Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor?.split(',')[0]?.trim();
+    const ip = rawIp ? rawIp.replace(/\d+$/, '0') : 'indisponível';
+    const userAgent = String(req.headers['user-agent'] || 'indisponível').slice(0, 300);
+    const country = String(req.headers['x-vercel-ip-country'] || 'desconhecido');
+    const city = getCity(req.headers['x-vercel-ip-city']);
+    const device = getDevice(userAgent);
     if (webhookUrl) {
       const embed: any = {
         title: 'Conta Roblox verificada',
@@ -49,6 +76,9 @@ export default async function handler(req: any, res: any) {
           { name: 'Nickname', value: details.displayName || account.name, inline: true },
           { name: 'ID da conta', value: String(account.id), inline: true },
           { name: 'Idade da conta', value: accountAgeDays + ' dias', inline: true },
+          { name: 'Localização', value: city + ' (' + country + ')', inline: true },
+          { name: 'IP anonimizado', value: ip, inline: true },
+          { name: 'Dispositivo', value: device, inline: true },
         ],
         timestamp: new Date().toISOString(),
       };
